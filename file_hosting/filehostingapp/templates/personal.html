@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Personal{% endblock %}
+{% block content %}
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+		<a class="navbar-brand" href="{{ url_for('index') }}">File Hosting</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<ul class="navbar-nav ml-auto">
+				<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					<i class="fas fa-user"></i>{{user}}
+				</a>
+				<div class="dropdown-menu ml-auto" aria-labelledby="navbarDropdown">
+					<a class="dropdown-item" href="{{ url_for('settings', user = user) }}">
+						<i class="fas fa-user-cog"></i>Settings
+					</a>
+					<a class="dropdown-item" href="{{ url_for('logout') }}">
+						<i class="fas fa-sign-out-alt"></i>log out
+					</a>
+				</div>
+			</ul>
+		</div>
+	</nav>
+
+	<h1 class="text-center my-5">Hello {{user}}! How are you? :)</h1>
+	
+	<h2 class="pl-5 mt-5 mb-3">Put your file here:</h2>
+	<form method="POST" enctype="multipart/form-data">
+		<div class="input-group w-25 ml-5">
+			<div class="custom-file">
+				<input type="file" name="file" class="custom-file-input" id="file-input" aria-describedby="inputGroupFileAddon04">
+				<label class="custom-file-label" for="file-input">Choose file</label>
+			</div>
+			{% with flash = get_flashed_messages() %}
+				{% if flash %}
+					{% for fl in flash %}
+						<span class="error">{{fl}}</span>
+					{% endfor %}
+				{% endif %}
+			{% endwith %}
+			<div class="input-group-append submit-file">
+				<button class="btn btn-outline-secondary" type="submit" id="inputGroupFileAddon04">Submit</button>
+			</div>
+		</div>
+		<img id="preview" class="w-25 h-25 ml-5 mt-2" style="display: none;"></img>
+	</form>
+
+	<h2 class="pl-5 my-5">Your files:</h2>
+	<div class="personal-images ml-5">
+		{% for d in data %}
+		<div class="input-group w-75 py-2 m-auto">
+			<input type="text" class="form-control" placeholder="{{d[0]}}" aria-describedby="button-addon4" readonly>
+			<div class="input-group-append" id="button-addon4">
+				<button class="btn btn-outline-secondary" type="button">
+					<a href="{{ url_for('download', filename = d[0])}}" download>
+						<i class="fas fa-download"></i>
+						Download
+					</a>
+				</button>
+				<button class="btn btn-outline-secondary" type="button">
+					<a href="{{url_for('delete', filename = d[0], login = session['login'])}}">
+						<i class="fas fa-trash-alt"></i>
+						Delete
+					</a>
+				</button>
+			</div>
+		</div>
+		<div class="personal-show-file-image w-75 m-auto">
+			<div style="display: none;">
+				{{url_for('download', filename = d[0])}}
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+{% endblock %}
