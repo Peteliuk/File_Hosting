@@ -7,7 +7,8 @@ def upload_folder():
 	return UPLOAD_FOLDER
 # Allowed file's formats
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'doc', 'docx', 'ppt', 'csv', 'xls'])
-
+def allowed_extentions():
+	return list(ALLOWED_EXTENSIONS)
 # Generate new file name
 def change_file_name(filename):
 	arr = filename.split(".")
