@@ -13,6 +13,7 @@ from flask import render_template
 #import file function
 from filehostingapp.file_functions import change_file_name
 from filehostingapp.file_functions import allowed_file
+from filehostingapp.file_functions import allowed_extentions
 
 #import database functions
 from filehostingapp.db_functions import get_user_id
@@ -31,7 +32,7 @@ class FileModule:
 				file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 			else:
 				flash(f"""Allowed file formats are: 
-					{list(ALLOWED_EXTENSIONS)[:]}
+					{allowed_extentions()}
 					""")
 				return redirect(url_for('personal', user = session["user"] 
 					if "user" in session 
