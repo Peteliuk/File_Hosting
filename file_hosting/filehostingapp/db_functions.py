@@ -1,79 +1,69 @@
-import sqlite3
 import os
-from filehostingapp.file_functions import basedir
 from filehostingapp import app
+from flask_sqlalchemy import SQLAlchemy
+from cryptography.fernet import Fernet
 
-# SQL Queries
-# Connect to database
-with sqlite3.connect(f'{basedir}/data.db', check_same_thread = False) as mydb:
-	# Get user's id
-	def get_user_id(login):
-		sql = f"SELECT users.id FROM users WHERE users.login = '{login}'"
-		cur = mydb.cursor()
-		cur.execute(sql)
-		result = cur.fetchall()
-		return result[0][0] if result else -1
+key = b'JDyFtqaqzubH390IS3h3ALHpVLDJVSGvgPrkuXb86jE='
+f = Fernet(key)
+db = SQLAlchemy(app)
 
-	# Select all from 'user_files' table
-	def select_files(user_id):
-		sql = f"SELECT * FROM user_files WHERE user_id = {user_id}"
-		cur = mydb.cursor()
-		cur.execute(sql)
-		result = cur.fetchall()
-		data = [] # List for filename and filepath
-		for res in result:
-			# Append to 'data' list touple(s) within filename and filepath
-			data.append((res[0],res[1]))
-		return data
 
-	# Insert values to 'user_files' table
-	def insert_file(*args):
-		sql = "INSERT INTO user_files VALUES (?,?,?)"
-		cur = mydb.cursor()
-		cur.execute(sql,args)
-		mydb.commit()
+class Users(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    login = db.Column(db.String(30), nullable=False)
+    password = db.Column(db.String(30), nullable=False)
+    name = db.Column(db.String(40), nullable=True)
+    surname = db.Column(db.String(50), nullable=True)
 
-	# Delete row from 'user_files' table
-	def delete_file(*args):
-		sql = f"""DELETE FROM user_files 
-		WHERE user_files.filename = '{args[0]}'
-		AND user_files.user_id = {args[1]}"""
-		cur = mydb.cursor()
-		cur.execute(sql)
-		mydb.commit()
-		os.remove(os.path.join(app.config['UPLOAD_FOLDER'], args[0]))
 
-	# Insert login and password to 'users' table
-	def insert_data(*args):
-		sql = "INSERT INTO users (login, password) VALUES (?,?)"
-		cur = mydb.cursor()
-		cur.execute(sql,args)
-		mydb.commit()
+class Files(db.Model):
+    id = db.Column(db.Integer, nullable=False, primary_key=True)
+    filename = db.Column(db.String(30), nullable=False)
+    user_id = db.Column(db.Integer, nullable=False)
 
-	# Select all data from 'users' table
-	def select_data(user_id):
-		sql = f"SELECT * FROM users WHERE users.id = {user_id}"
-		cur = mydb.cursor()
-		cur.execute(sql)
-		return cur.fetchall()
 
-	# Check if login exists
-	def check_data(login):
-		cur = mydb.cursor()
-		cur.execute("SELECT login FROM users")
-		res = cur.fetchall()
-		for r in res:
-			if login == r[0]:
-				return "exist"
-				break
+def get_user_id(login):
+    select = Users.query.filter_by(login=login).first()
+    return select.id if select else None
 
-	# Update 'users' table: set user's name and surname
-	def update_data(*args):
-		sql = f"""
-		UPDATE users 
-		SET name = '{args[0]}', surname = '{args[1]}' 
-		WHERE id = {args[2]}
-		"""
-		cur = mydb.cursor()
-		cur.execute(sql)
-		mydb.commit()
+
+def select_user(*args):
+    select = Users.query.filter_by(login=args[0]).first()
+    return select if select and f.decrypt(
+        select.password) == args[1].encode() else None
+
+
+def check_user(user_id):
+    select = Users.query.filter_by(id=user_id).first()
+    return select
+
+
+def insert_user(*args):
+    insert = Users(login=args[0], password=f.encrypt(args[1].encode()))
+    db.session.add(insert)
+    db.session.commit()
+
+
+def update_user(*args):
+    select = Users.query.filter_by(id=args[0]).first()
+    select.name = args[1]
+    select.surname = args[2]
+    db.session.commit()
+
+
+def select_files(user_id):
+    select = Files.query.filter_by(user_id=user_id).all()
+    return select
+
+
+def insert_file(*args):
+    insert = Files(user_id=args[0], filename=args[1])
+    db.session.add(insert)
+    db.session.commit()
+
+
+def delete_file(*args):
+    del_file = Files.query.filter_by(user_id=args[0], filename=args[1]).first()
+    db.session.delete(del_file)
+    db.session.commit()
+    os.remove(os.path.join(app.config['UPLOAD_FOLDER'], args[1]))

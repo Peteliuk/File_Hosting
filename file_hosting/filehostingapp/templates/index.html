@@ -9,24 +9,33 @@
 
 		<div class="collapse navbar-collapse" id="navbarSupportedContent">
 			<ul class="navbar-nav ml-auto">
-				{% if user == "None" %}
+				{% if user %}
+					<li class="nav-item">
+						<a class="nav-link" href="{{ url_for('personal', user = user) }}">
+							<i class="fas fa-user"></i>{{user}}
+						</a>
+					</li>
+				{% else %}
 					<li class="nav-item">
 						<a class="nav-link" href="{{ url_for('login') }}">sign in</a>
 					</li>
 					<li class="nav-item">
 						<a class="nav-link" href="{{ url_for('registration') }}">sign up</a>
 					</li>
-				{% else %}
-					<li class="nav-item">
-						<a class="nav-link" href="{{ url_for('personal', user = user) }}">
-							<i class="fas fa-user"></i>{{user}}
-						</a>
-					</li>
 				{% endif %}
 			</ul>
 		</div>
 	</nav>
 
-	<p class="index-title">File Hosting</p>
-	<p class="index-subtitle">your simple file base! :)</p>
+	{% with flash = get_flashed_messages() %}
+		{% if flash %}
+			{% for fl in flash %}
+				<span class="error">{{fl}}</span>
+			{% endfor %}
+		{% else %}
+			<p class="index-title">File Hosting</p>
+			<p class="index-subtitle">your simple file base! :)</p>
+		{% endif %}
+	{% endwith %}
+
 {% endblock %}

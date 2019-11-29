@@ -51,25 +51,25 @@
 	<div class="personal-images ml-5">
 		{% for d in data %}
 		<div class="input-group w-75 py-2 m-auto">
-			<input type="text" class="form-control" placeholder="{{d[0]}}" aria-describedby="button-addon4" readonly>
+			<input type="text" class="form-control" placeholder="{{d.filename}}" aria-describedby="button-addon4" readonly>
 			<div class="input-group-append" id="button-addon4">
-				<button class="btn btn-outline-secondary" type="button">
-					<a href="{{ url_for('download', filename = d[0])}}" download>
+				<a href="{{ url_for('download', filename = d.filename) }}" download>
+					<button class="btn btn-outline-secondary" type="button">
 						<i class="fas fa-download"></i>
 						Download
-					</a>
-				</button>
-				<button class="btn btn-outline-secondary" type="button">
-					<a href="{{url_for('delete', filename = d[0], login = session['login'])}}">
+					</button>
+				</a>
+				<a href="{{ url_for('delete', filename = d.filename) }}">
+					<button class="btn btn-outline-secondary" type="button">
 						<i class="fas fa-trash-alt"></i>
 						Delete
-					</a>
-				</button>
+					</button>
+				</a>
 			</div>
 		</div>
 		<div class="personal-show-file-image w-75 m-auto">
 			<div style="display: none;">
-				{{url_for('download', filename = d[0])}}
+				{{url_for('download', filename = d.filename)}}
 			</div>
 		</div>
 		{% endfor %}
