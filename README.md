@@ -19,5 +19,7 @@ and some python modules like:
 * *flask* - [link](https://github.com/pallets/flask)
 * *flask-sqlalchemy* - [link](https://pypi.org/project/Flask-SQLAlchemy/) 
 
+After installing open file "run.py"
+
 ***
 #### Test project on [*Heroku*](https://file-hosting-flask.herokuapp.com/)
