@@ -10,6 +10,7 @@ db = SQLAlchemy(app)
 
 class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+
     login = db.Column(db.String(30), nullable=False)
     password = db.Column(db.String(30), nullable=False)
     name = db.Column(db.String(40), nullable=True)
